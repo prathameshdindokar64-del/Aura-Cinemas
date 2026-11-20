@@ -23,7 +23,8 @@ obj/
 *.dll
 *.dylib
 
-# SQLite temporary and lock files
+# SQLite databases and temporary lock files
+*.db
 *.db-wal
 *.db-shm
 *.db-journal
