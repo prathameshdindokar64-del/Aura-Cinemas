@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# C++ Build artifacts
+**/backend/build/
+backend/build/
+build/
+bin/
+obj/
+*.exe
+*.out
+*.app
+*.o
+*.obj
+*.dll
+*.dylib
+
+# SQLite temporary and lock files
+*.db-wal
+*.db-shm
+*.db-journal
+
+# VS Code & IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Temporary & Log files
+*.log

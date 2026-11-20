@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console - AuraCinemas</title>
+    <meta name="description" content="AuraCinemas Administration Portal. Manage cinema houses by region, active movies, descriptions, pictures, and show bookings.">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #181512 0%, #201a14 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1.75rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .admin-header__title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .admin-header__badge {
+            background: rgba(212, 163, 115, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            transition: transform var(--transition);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(212, 163, 115, 0.4);
+        }
+        .stat-card__label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+        .stat-card__value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .stat-card__sub {
+            font-size: 0.7rem;
+            color: var(--color-green);
+            margin-top: 0.25rem;
+        }
+
+        /* Admin Tab Navigation */
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+        .admin-tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .admin-tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .admin-tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .admin-panel-section {
+            display: none;
+        }
+        .admin-panel-section.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form layout */
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+        }
+        .admin-card__title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .admin-card__subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .form-control {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            padding: 0.65rem 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        .form-control:focus {
+            border-color: var(--accent);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Table styles */
+        .admin-table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .admin-table th {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            padding: 0.9rem 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 0.72rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-table td {
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+        .admin-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Preset Posters Bar */
+        .poster-presets {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            margin-top: 0.4rem;
+        }
+        .preset-thumb {
+            width: 60px;
+            height: 80px;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        .preset-thumb:hover, .preset-thumb.selected {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .role-notice-banner {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="navbar__logo">Aura<span>Cinemas</span></a>
+        <div class="navbar__nav">
+            <a href="index.html" class="navbar__link">View Public Site</a>
+            <a href="booking.html?show_id=1" class="navbar__link">Seat Booking Demo</a>
+            <div id="navbarUserWidget"></div>
+        </div>
+    </nav>
+
+    <div class="admin-header">
+        <div>
+            <div class="admin-header__title">
+                <span>AuraCinemas Administration</span>
+                <span class="admin-header__badge">Admin Console</span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem;">
+                Manage Cinema Houses by Region, Movies, Media Assets, Show Scheduling &amp; Traffic-Based Adaptive Pricing.
+            </p>
+        </div>
+        <div style="display:flex; gap:0.6rem; align-items:center;">
+            <button class="btn btn--outline btn--sm" onclick="fetchAdminStats()">🔄 Refresh Live Stats</button>
+            <a href="index.html" class="btn btn--primary btn--sm">&larr; Return to Catalog</a>
+        </div>
+    </div>
+
+    <div class="container" style="padding-top:1.5rem;">
+
+        <!-- Admin Notice Banner (for logged in admins) -->
+        <div class="role-notice-banner" id="adminNoticeBanner" style="display:none;"></div>
+
+        <!-- Admin Auth Gate (when not logged in as Admin) -->
+        <div id="adminAuthGate" style="display:none; margin-bottom:2rem;"></div>
+
+        <!-- Admin Dashboard Content (strictly for authenticated admins) -->
+        <div id="adminDashboardContent">
+            <!-- KPI Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-card__label">Cinema Houses</div>
+                <div class="stat-card__value" id="kpiCinemas">--</div>
+                <div class="stat-card__sub">Across Indian Regions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">Active Movies</div>
+                <div class="stat-card__value" id="kpiMovies">--</div>
+                <div class="stat-card__sub">In Multiplex Catalog</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">Scheduled Shows</div>
+                <div class="stat-card__value" id="kpiShows">--</div>
+                <div class="stat-card__sub">With Concurrency Locks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">Total Bookings</div>
+                <div class="stat-card__value" id="kpiBookings">--</div>
+                <div class="stat-card__sub">Confirmed Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">Total Revenue</div>
+                <div class="stat-card__value" id="kpiRevenue">&#8377;--</div>
+                <div class="stat-card__sub">Dynamic Pricing Yield</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">Automated Emails</div>
+                <div class="stat-card__value" id="kpiEmails">--</div>
+                <div class="stat-card__sub">Dispatched to Users</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('cinemas')">🏢 Cinema Houses (Regions)</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('movies')">🎬 Active Movies &amp; Assets</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('shows')">📅 Schedule Show Bookings</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('pricing')">📈 Adaptive Pricing &amp; Traffic</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('bookings')">🧾 Customer Bookings &amp; Emails</button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: CINEMA HOUSES & REGIONS -->
+        <!-- ================================================================= -->
+        <div class="admin-panel-section active" id="sec_cinemas">
+            <div class="admin-card">
+                <h3 class="admin-card__title">🏢 Add Cinema House in a Region</h3>
+                <p class="admin-card__subtitle">Deploy new cinema multiplexes in specific metro and tier-2 regions with auto-configured auditoriums and seat tiers.</p>
+                <form id="addCinemaForm" onsubmit="handleAddCinema(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Region / City *</label>
+                            <select id="cinemaCitySelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cinema House Name *</label>
+                            <input type="text" id="cinemaName" class="form-control" placeholder="e.g. AuraCinemas PVR Gold Nexus" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location Address</label>
+                            <input type="text" id="cinemaAddress" class="form-control" placeholder="e.g. Nexus Mall, Seawoods Grand Central">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Auditoriums / Screens</label>
+                            <select id="cinemaScreensCount" class="form-control">
+                                <option value="1">1 Screen (Single Audi)</option>
+                                <option value="2" selected>2 Screens (Multiplex)</option>
+                                <option value="3">3 Screens (Mega Multiplex)</option>
+                                <option value="4">4 Screens (Max)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn--primary" id="btnAddCinema">Add Cinema House to Region</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-table-wrapper">
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 0.95rem;">Active Cinema Houses by Region</strong>
+                    <span id="cinemaCountBadge" style="font-size: 0.75rem; color: var(--text-muted);">-- Cinemas</span>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cinema House</th>
+                            <th>Region / City</th>
+                            <th>Address</th>
+                            <th>Screens</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cinemasTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: ACTIVE MOVIES MANAGEMENT -->
+        <!-- ================================================================= -->
+        <div class="admin-panel-section" id="sec_movies">
+            <div class="admin-card">
+                <h3 class="admin-card__title">🎬 Add Active Movie with Media &amp; Description</h3>
+                <p class="admin-card__subtitle">Register new releases in the multiplex system. Specify plot synopsis, poster artwork, certification, and director/cast.</p>
+                <form id="addMovieForm" onsubmit="handleAddMovie(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Movie Title *</label>
+                            <input type="text" id="movieTitleInput" class="form-control" placeholder="e.g. Gladiator II" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language *</label>
+                            <select id="movieLanguage" class="form-control">
+                                <option value="Hindi">Hindi</option>
+                                <option value="English">English</option>
+                                <option value="Telugu">Telugu</option>
+                                <option value="Tamil">Tamil</option>
+                                <option value="Malayalam">Malayalam</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Genre</label>
+                            <input type="text" id="movieGenre" class="form-control" placeholder="e.g. Action, Epic, Drama" value="Action, Drama">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duration (Minutes)</label>
+                            <input type="number" id="movieDuration" class="form-control" value="150" min="60" max="300">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Certification</label>
+                            <select id="movieCert" class="form-control">
+                                <option value="U">U (Universal)</option>
+                                <option value="U/A" selected>U/A (Parental Guidance)</option>
+                                <option value="A">A (Adults Only)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rating (0 - 10)</label>
+                            <input type="number" step="0.1" id="movieRating" class="form-control" value="8.0" min="0" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Director</label>
+                            <input type="text" id="movieDirector" class="form-control" placeholder="e.g. Ridley Scott">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Star Cast</label>
+                            <input type="text" id="movieCast" class="form-control" placeholder="e.g. Paul Mescal, Pedro Pascal, Denzel Washington">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Plot Synopsis / Description</label>
+                            <textarea id="movieSynopsis" class="form-control" placeholder="Detailed storyline and synopsis displayed to customers..."></textarea>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Poster Picture URL</label>
+                            <input type="url" id="moviePosterUrl" class="form-control" placeholder="https://example.com/poster.jpg">
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+                                Quick-pick sample artwork preset:
+                            </div>
+                            <div class="poster-presets">
+                                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80" class="preset-thumb" title="Cosmic Epic" onclick="selectPresetPoster(this.src)">
+                                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" class="preset-thumb" title="Action Thriller" onclick="selectPresetPoster(this.src)">
+                                <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80" class="preset-thumb" title="Cinema Hall Classic" onclick="selectPresetPoster(this.src)">
+                                <img src="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80" class="preset-thumb" title="Dark Drama" onclick="selectPresetPoster(this.src)">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn--primary" id="btnAddMovie">Add Movie to Multiplex Catalog</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-table-wrapper">
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <strong style="font-size: 0.95rem;">Catalog of Active Movies &amp; Assets</strong>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Manage cinema catalog assets, view live status, and remove unlisted movies.</div>
+                    </div>
+                    <div style="display: flex; gap: 0.6rem; align-items: center;">
+                        <input type="text" id="adminMovieSearchInput" class="form-control" placeholder="🔍 Search active movies..." style="width: 260px; font-size: 0.8rem; padding: 0.45rem 0.8rem;" oninput="handleAdminMovieSearch(this.value)">
+                        <span id="activeMovieCountBadge" style="font-size: 0.75rem; color: var(--accent); font-weight: 600; white-space: nowrap; background: rgba(212,163,115,0.1); padding: 0.3rem 0.6rem; border-radius: 4px; border: 1px solid rgba(212,163,115,0.25);">-- Movies</span>
+                    </div>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Poster</th>
+                            <th>Title</th>
+                            <th>Language</th>
+                            <th>Genre &amp; Duration</th>
+                            <th>Cert / Rating</th>
+                            <th>Director</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moviesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: SCHEDULE SHOWS / BOOKINGS -->
+        <!-- ================================================================= -->
+        <div class="admin-panel-section" id="sec_shows">
+            <div class="admin-card">
+                <h3 class="admin-card__title">📅 Create &amp; Schedule Shows in Cinema Houses</h3>
+                <p class="admin-card__subtitle">Assign an active movie to a specific auditorium/screen in a cinema house. All auditorium seats will be initialized for booking.</p>
+                <form id="createShowForm" onsubmit="handleCreateShow(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Select Movie *</label>
+                            <select id="showMovieSelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Select Cinema House *</label>
+                            <select id="showCinemaSelect" class="form-control" onchange="handleCinemaChangeForScreen()" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Select Auditorium / Screen *</label>
+                            <select id="showScreenSelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Show Date *</label>
+                            <input type="date" id="showDateInput" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Time *</label>
+                            <input type="time" id="showStartTime" class="form-control" value="18:30" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Time *</label>
+                            <input type="time" id="showEndTime" class="form-control" value="21:30" required>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn--primary" id="btnCreateShow">Schedule &amp; Activate Show</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-table-wrapper">
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);">
+                    <strong style="font-size: 0.95rem;">Scheduled Showtimes &amp; Bookings</strong>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Show ID</th>
+                            <th>Movie</th>
+                            <th>Cinema House</th>
+                            <th>Screen</th>
+                            <th>Date &amp; Time</th>
+                            <th>Direct Booking Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="showsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: ADAPTIVE PRICING & TRAFFIC -->
+        <!-- ================================================================= -->
+        <div class="admin-panel-section" id="sec_pricing">
+            <div class="admin-card">
+                <h3 class="admin-card__title">📈 Adaptive Pricing Engine &amp; Traffic Simulation</h3>
+                <p class="admin-card__subtitle">
+                    Mathematical rule: As traffic on a specific movie surges, ticket pricing increases gradually and proportionally up to <strong>+80% higher</strong> (1.80x cap). As traffic slows down, prices fall, with an absolute floor ensuring prices <strong>will not dip below 20% of the original price</strong> (0.80x floor).
+                </p>
+
+                <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                        <div>
+                            <strong style="font-size:1rem; color:var(--text-primary);">Movie for Traffic Simulation:</strong>
+                            <select id="pricingMovieSelect" class="form-control" style="display:inline-block; width:auto; margin-left:0.5rem;" onchange="loadAdaptivePricingMetrics()"></select>
+                        </div>
+                        <div id="trafficStatusBadge" class="surge-badge surge-badge--normal">Normal Traffic</div>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.4rem;">
+                            <span>Slow Traffic (0% - Floor: -20%)</span>
+                            <span>Baseline Normal (50% - 1.0x Base)</span>
+                            <span>Peak Surge (100% - Cap: +80%)</span>
+                        </div>
+                        <input type="range" id="trafficScoreSlider" min="0" max="100" value="50" style="width:100%; accent-color:var(--accent); cursor:pointer;" oninput="handleTrafficSliderChange(this.value)">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+                            <span>Min Floor Multiplier: <strong>0.80x</strong></span>
+                            <span>Current Traffic Score: <strong id="trafficScoreLabel" style="color:var(--accent);">50</strong>/100</span>
+                            <span>Max Multiplier Cap: <strong>1.80x</strong></span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button class="btn btn--outline btn--sm" onclick="setSimulatedTraffic(0)">Set Slow Traffic (Floor ₹160 / 0.80x)</button>
+                        <button class="btn btn--outline btn--sm" onclick="setSimulatedTraffic(50)">Set Normal Traffic (₹200 / 1.00x)</button>
+                        <button class="btn btn--outline btn--sm" onclick="setSimulatedTraffic(75)">Set High Demand (₹280 / 1.40x)</button>
+                        <button class="btn btn--outline btn--sm" onclick="setSimulatedTraffic(100)">Set Peak Viral Surge (₹360 / 1.80x)</button>
+                        <button class="btn btn--outline btn--sm" onclick="resetTrafficToLive()" style="margin-left:auto; border-color:#555;">Reset to Real-Time Live Hits</button>
+                    </div>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <div style="padding:0.75rem 1.25rem; border-bottom:1px solid var(--border);">
+                        <strong style="font-size:0.9rem;">Live Adaptive Prices for Movie Seats</strong>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Original Base Price</th>
+                                <th>Adaptive Calculated Price</th>
+                                <th>Proportional Adjustment</th>
+                                <th>Mathematical Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adaptivePricingTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Real-Time Automated Location Traffic Across Multiplexes -->
+                <div class="admin-table-wrapper" style="margin-top: 1.5rem;">
+                    <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                        <div>
+                            <strong style="font-size:0.95rem;">📍 Automated Location &amp; Movie Traffic Monitor</strong>
+                            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">
+                                Dynamic pricing calculated per cinema house based on auditorium occupancy % and location footfall.
+                            </div>
+                        </div>
+                        <button class="btn btn--outline btn--sm" onclick="loadLocationTrafficMetrics()">🔄 Refresh Location Traffic</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Cinema House &amp; Region</th>
+                                <th>Movie &amp; Show Time</th>
+                                <th>Auditorium Occupancy</th>
+                                <th>Demand Status</th>
+                                <th>Multiplier</th>
+                                <th>Standard Price</th>
+                                <th>Public View</th>
+                            </tr>
+                        </thead>
+                        <tbody id="locationTrafficTableBody">
+                            <tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Loading location traffic metrics...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: CUSTOMER BOOKINGS & EMAIL LOGS -->
+        <!-- ================================================================= -->
+        <div class="admin-panel-section" id="sec_bookings">
+            <div class="admin-card">
+                <h3 class="admin-card__title">🧾 Confirmed Customer Bookings &amp; Automated Email Logs</h3>
+                <p class="admin-card__subtitle">Audit customer transactions, payment confirmations, and automated email receipts sent to registered addresses.</p>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Customer &amp; Registered Email</th>
+                                <th>Movie &amp; Cinema House</th>
+                                <th>Show Date &amp; Time</th>
+                                <th>Seats</th>
+                                <th>Grand Total</th>
+                                <th>Automated Email Dispatch</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBookingsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- End adminDashboardContent -->
+    </div> <!-- End container -->
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <footer class="footer">
+        <p>&copy; 2026 AuraCinemas Administration. Role-Enforced Security &amp; Automated Email Notifications.</p>
+    </footer>
+
+    <!-- Shared Auth Module -->
+    <script src="js/auth.js"></script>
+    <script>
+    const API = window.location.hostname === 'localhost' ? 'http://localhost:8080' : '';
+    let globalCinemas = [];
+    let globalMovies = [];
+    let globalCities = [];
+
+    function showToast(msg, type = 'info') {
+        const c = document.getElementById('toastContainer');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = `toast toast--${type}`;
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(() => {
+            t.classList.add('toast--exit');
+            setTimeout(() => t.remove(), 200);
+        }, 3000);
+    }
+
+    function switchAdminTab(tabName) {
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.admin-panel-section').forEach(s => s.classList.remove('active'));
+
+        const targetBtn = Array.from(document.querySelectorAll('.admin-tab-btn')).find(b => b.getAttribute('onclick').includes(tabName));
+        const targetSec = document.getElementById(`sec_${tabName}`);
+        if (targetBtn) targetBtn.classList.add('active');
+        if (targetSec) targetSec.classList.add('active');
+
+        if (tabName === 'cinemas') loadCinemas();
+        else if (tabName === 'movies') loadMovies();
+        else if (tabName === 'shows') loadShows();
+        else if (tabName === 'pricing') { loadAdaptivePricingMetrics(); loadLocationTrafficMetrics(); }
+        else if (tabName === 'bookings') loadAdminBookings();
+    }
+
+    async function fetchAdminStats() {
+        try {
+            const res = await fetch(`${API}/api/admin/stats`);
+            const data = await res.json();
+            if (data.success && data.stats) {
+                const s = data.stats;
+                document.getElementById('kpiCinemas').textContent = s.total_cinemas;
+                document.getElementById('kpiMovies').textContent = s.total_movies;
+                document.getElementById('kpiShows').textContent = s.total_shows;
+                document.getElementById('kpiBookings').textContent = s.total_bookings;
+                document.getElementById('kpiRevenue').textContent = `₹${s.total_revenue.toLocaleString('en-IN')}`;
+                document.getElementById('kpiEmails').textContent = s.total_emails_sent;
+            }
+        } catch (e) {}
+    }
+
+    async function loadCities() {
+        try {
+            const res = await fetch(`${API}/api/cities`);
+            const data = await res.json();
+            globalCities = data.cities || [];
+            const sel = document.getElementById('cinemaCitySelect');
+            sel.innerHTML = globalCities.map(c => `<option value="${c.city_id}">${c.city_name} (${c.state})</option>`).join('');
+        } catch (e) {}
+    }
+
+    async function loadCinemas() {
+        try {
+            const res = await fetch(`${API}/api/admin/cinemas`);
+            const data = await res.json();
+            globalCinemas = data.cinemas || [];
+            document.getElementById('cinemaCountBadge').textContent = `${globalCinemas.length} Cinema Houses`;
+
+            const tbody = document.getElementById('cinemasTableBody');
+            tbody.innerHTML = globalCinemas.map(c => `
+                <tr>
+                    <td>#${c.theater_id}</td>
+                    <td><strong>${c.theater_name}</strong></td>
+                    <td><span class="movie-card__tag" style="background:#222;">${c.city_name}, ${c.state}</span></td>
+                    <td>${c.address || '--'}</td>
+                    <td>${c.screens ? c.screens.length : c.total_screens} Auditoriums</td>
+                    <td><span style="color:var(--color-green); font-size:0.75rem; font-weight:600;">ACTIVE</span></td>
+                </tr>
+            `).join('');
+
+            // Also populate show cinema select
+            const showCinSel = document.getElementById('showCinemaSelect');
+            if (showCinSel) {
+                showCinSel.innerHTML = '<option value="">-- Choose Cinema House --</option>' + globalCinemas.map(c => `
+                    <option value="${c.theater_id}">${c.theater_name} (${c.city_name})</option>
+                `).join('');
+            }
+        } catch (e) {}
+    }
+
+    async function handleAddCinema(e) {
+        e.preventDefault();
+        const city_id = document.getElementById('cinemaCitySelect').value;
+        const theater_name = document.getElementById('cinemaName').value;
+        const address = document.getElementById('cinemaAddress').value;
+        const total_screens = parseInt(document.getElementById('cinemaScreensCount').value);
+
+        try {
+            const res = await fetch(`${API}/api/admin/theaters`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ city_id, theater_name, address, total_screens })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                document.getElementById('addCinemaForm').reset();
+                loadCinemas();
+                fetchAdminStats();
+            } else {
+                showToast(data.error || 'Failed to add cinema', 'error');
+            }
+        } catch (e) {
+            showToast('Network error adding cinema', 'error');
+        }
+    }
+
+    let adminMovieSearchQuery = '';
+
+    function handleAdminMovieSearch(query) {
+        adminMovieSearchQuery = (query || '').toLowerCase().trim();
+        renderAdminMoviesTable();
+    }
+
+    function renderAdminMoviesTable() {
+        const tbody = document.getElementById('moviesTableBody');
+        if (!tbody) return;
+
+        let filtered = globalMovies;
+        if (adminMovieSearchQuery) {
+            filtered = filtered.filter(m =>
+                (m.title && m.title.toLowerCase().includes(adminMovieSearchQuery)) ||
+                (m.director && m.director.toLowerCase().includes(adminMovieSearchQuery)) ||
+                (m.genre && m.genre.toLowerCase().includes(adminMovieSearchQuery)) ||
+                (m.language && m.language.toLowerCase().includes(adminMovieSearchQuery))
+            );
+        }
+
+        const badge = document.getElementById('activeMovieCountBadge');
+        if (badge) {
+            badge.textContent = `${filtered.length} Active Movie${filtered.length === 1 ? '' : 's'}`;
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">No active movies matching "${adminMovieSearchQuery}"</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(m => {
+            const safeTitle = (m.title || 'Movie').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
+                <tr>
+                    <td>
+                        <img src="${m.poster_url || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=100'}" style="width:36px; height:48px; border-radius:4px; object-fit:cover;">
+                    </td>
+                    <td>
+                        <strong>${m.title}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${m.synopsis || '--'}
+                        </div>
+                    </td>
+                    <td><span class="movie-card__tag" style="display:inline-block; font-size:0.7rem; padding:1px 6px;">${m.language}</span></td>
+                    <td>${m.genre} (${m.duration_mins}m)</td>
+                    <td><strong>${m.certification}</strong> / ⭐ ${m.rating}</td>
+                    <td>${m.director || '--'}</td>
+                    <td>
+                        <div style="display:flex; gap:0.4rem; align-items:center;">
+                            <a href="booking.html?movie_id=${m.movie_id}" target="_blank" class="btn btn--outline btn--sm" style="font-size:0.7rem; padding:0.25rem 0.6rem;">Preview</a>
+                            <button class="btn btn--sm" onclick="handleDeleteMovie(${m.movie_id}, '${safeTitle}')" style="font-size:0.7rem; padding:0.25rem 0.6rem; background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.4); cursor:pointer;" title="Remove this movie from active catalog">
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async function handleDeleteMovie(movieId, title) {
+        if (!confirm(`Are you sure you want to remove "${title}" from the active multiplex catalog?\n\nThis will remove the movie and all its scheduled shows from the public site.`)) {
+            return;
+        }
+
+        try {
+            // First attempt DELETE
+            let res = await fetch(`${API}/api/admin/movies/${movieId}`, {
+                method: 'DELETE'
+            });
+            // Fallback to POST if server/proxy blocked DELETE
+            if (res.status === 405 || !res.ok) {
+                res = await fetch(`${API}/api/admin/movies/${movieId}/delete`, {
+                    method: 'POST'
+                });
+            }
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message || `Movie "${title}" removed successfully!`, 'success');
+                await loadMovies();
+                fetchAdminStats();
+                loadShows();
+                loadLocationTrafficMetrics();
+            } else {
+                showToast(data.error || 'Failed to remove movie', 'error');
+            }
+        } catch (e) {
+            showToast('Network error while removing movie', 'error');
+        }
+    }
+
+    async function loadMovies() {
+        try {
+            const res = await fetch(`${API}/api/movies`);
+            const data = await res.json();
+            globalMovies = data.movies || [];
+
+            renderAdminMoviesTable();
+
+            // Populate show movie select
+            const showMovSel = document.getElementById('showMovieSelect');
+            if (showMovSel) {
+                showMovSel.innerHTML = globalMovies.map(m => `<option value="${m.movie_id}">${m.title} (${m.language})</option>`).join('');
+            }
+
+            // Populate pricing movie select
+            const prMovSel = document.getElementById('pricingMovieSelect');
+            if (prMovSel) {
+                const currentVal = prMovSel.value;
+                prMovSel.innerHTML = globalMovies.map(m => `<option value="${m.movie_id}">${m.title}</option>`).join('');
+                if (currentVal && globalMovies.some(m => m.movie_id == currentVal)) {
+                    prMovSel.value = currentVal;
+                }
+            }
+        } catch (e) {}
+    }
+
+    function selectPresetPoster(url) {
+        document.getElementById('moviePosterUrl').value = url;
+        document.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected'));
+        event.target.classList.add('selected');
+    }
+
+    async function handleAddMovie(e) {
+        e.preventDefault();
+        const payload = {
+            title: document.getElementById('movieTitleInput').value,
+            language: document.getElementById('movieLanguage').value,
+            genre: document.getElementById('movieGenre').value,
+            duration_mins: parseInt(document.getElementById('movieDuration').value),
+            certification: document.getElementById('movieCert').value,
+            rating: parseFloat(document.getElementById('movieRating').value),
+            director: document.getElementById('movieDirector').value,
+            cast_list: document.getElementById('movieCast').value,
+            synopsis: document.getElementById('movieSynopsis').value,
+            poster_url: document.getElementById('moviePosterUrl').value
+        };
+
+        try {
+            const res = await fetch(`${API}/api/admin/movies`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                document.getElementById('addMovieForm').reset();
+                loadMovies();
+                fetchAdminStats();
+            } else {
+                showToast(data.error || 'Failed to add movie', 'error');
+            }
+        } catch (e) {
+            showToast('Network error adding movie', 'error');
+        }
+    }
+
+    function handleCinemaChangeForScreen() {
+        const theaterId = parseInt(document.getElementById('showCinemaSelect').value);
+        const cinema = globalCinemas.find(c => c.theater_id === theaterId);
+        const screenSel = document.getElementById('showScreenSelect');
+        screenSel.innerHTML = '';
+        if (cinema && cinema.screens && cinema.screens.length > 0) {
+            screenSel.innerHTML = cinema.screens.map(s => `
+                <option value="${s.screen_id}">${s.screen_name} (${s.screen_type} - ${s.total_capacity} seats)</option>
+            `).join('');
+        } else {
+            screenSel.innerHTML = '<option value="">No auditoriums found</option>';
+        }
+    }
+
+    async function handleCreateShow(e) {
+        e.preventDefault();
+        const movie_id = document.getElementById('showMovieSelect').value;
+        const screen_id = document.getElementById('showScreenSelect').value;
+        const show_date = document.getElementById('showDateInput').value;
+        const start_time = document.getElementById('showStartTime').value;
+        const end_time = document.getElementById('showEndTime').value;
+
+        if (!screen_id) {
+            showToast('Please select an auditorium screen', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API}/api/admin/shows`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movie_id, screen_id, show_date, start_time, end_time })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                loadShows();
+                fetchAdminStats();
+            } else {
+                showToast(data.error || 'Failed to schedule show', 'error');
+            }
+        } catch (e) {
+            showToast('Network error scheduling show', 'error');
+        }
+    }
+
+    async function loadShows() {
+        try {
+            const tbody = document.getElementById('showsTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem;">Loading shows...</td></tr>';
+            // Load shows for movie 1 or first active movie
+            const mid = globalMovies.length > 0 ? globalMovies[0].movie_id : 1;
+            const res = await fetch(`${API}/api/movies/${mid}/shows`);
+            const data = await res.json();
+            const shows = data.shows || [];
+
+            if (shows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No shows scheduled yet. Use form above to schedule!</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = shows.map(s => `
+                <tr>
+                    <td>#${s.show_id}</td>
+                    <td><strong>${s.title}</strong></td>
+                    <td>${s.theater_name} (${s.city_name})</td>
+                    <td>${s.screen_name} (${s.screen_type})</td>
+                    <td>${s.show_date} at ${s.start_time}</td>
+                    <td>
+                        <a href="booking.html?show_id=${s.show_id}&movie_id=${s.movie_id}" class="btn btn--outline btn--sm" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+                            Open Booking Page
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {}
+    }
+
+    // ------------------------------------------------------------------------
+    // ADAPTIVE PRICING & TRAFFIC
+    // ------------------------------------------------------------------------
+    async function loadAdaptivePricingMetrics() {
+        const movie_id = document.getElementById('pricingMovieSelect').value || 1;
+        try {
+            const res = await fetch(`${API}/api/pricing/adaptive?movie_id=${movie_id}`);
+            const data = await res.json();
+            if (data.success) {
+                const badge = document.getElementById('trafficStatusBadge');
+                badge.className = `surge-badge surge-badge--${data.adaptive_multiplier > 1.25 ? 'high' : (data.adaptive_multiplier > 1.0 ? 'medium' : (data.adaptive_multiplier < 1.0 ? 'low' : 'normal'))}`;
+                badge.textContent = `${data.traffic_level}: ${data.price_change_percent} (${data.adaptive_multiplier}x)`;
+
+                document.getElementById('trafficScoreSlider').value = data.traffic_score;
+                document.getElementById('trafficScoreLabel').textContent = data.traffic_score;
+
+                const tbody = document.getElementById('adaptivePricingTableBody');
+                tbody.innerHTML = (data.category_pricing || []).map(cp => {
+                    const diffText = cp.difference >= 0 ? `+₹${cp.difference}` : `-₹${Math.abs(cp.difference)}`;
+                    const color = cp.difference > 0 ? 'var(--color-amber)' : (cp.difference < 0 ? 'var(--color-green)' : 'var(--text-muted)');
+                    return `
+                        <tr>
+                            <td><strong>${cp.category}</strong></td>
+                            <td>₹${cp.base_price}</td>
+                            <td><strong style="color:var(--text-primary); font-size:1.05rem;">₹${cp.adaptive_price}</strong></td>
+                            <td><span style="color:${color}; font-weight:700;">${diffText} (${data.price_change_percent})</span></td>
+                            <td style="font-size:0.75rem; color:var(--text-muted);">
+                                Base ₹${cp.base_price} × ${data.adaptive_multiplier} = ₹${cp.adaptive_price} (Bounds: 0.80x to 1.80x)
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        } catch (e) {}
+    }
+
+    async function handleTrafficSliderChange(val) {
+        document.getElementById('trafficScoreLabel').textContent = val;
+        const movie_id = document.getElementById('pricingMovieSelect').value || 1;
+        try {
+            const res = await fetch(`${API}/api/pricing/simulate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movie_id, traffic_score: parseFloat(val) })
+            });
+            loadAdaptivePricingMetrics();
+        } catch (e) {}
+    }
+
+    async function setSimulatedTraffic(score) {
+        document.getElementById('trafficScoreSlider').value = score;
+        await handleTrafficSliderChange(score);
+        showToast(`Traffic simulation set to ${score}% demand`, 'info');
+    }
+
+    async function resetTrafficToLive() {
+        const movie_id = document.getElementById('pricingMovieSelect').value || 1;
+        try {
+            await fetch(`${API}/api/pricing/simulate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movie_id, traffic_score: null })
+            });
+            loadAdaptivePricingMetrics();
+            showToast('Reset to real-time live traffic hits', 'info');
+        } catch (e) {}
+    }
+
+    // ------------------------------------------------------------------------
+    // CUSTOMER BOOKINGS & EMAIL LOGS
+    // ------------------------------------------------------------------------
+    async function loadAdminBookings() {
+        try {
+            const res = await fetch(`${API}/api/admin/all-bookings`);
+            const data = await res.json();
+            const bookings = data.bookings || [];
+            const tbody = document.getElementById('adminBookingsTableBody');
+
+            if (bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No bookings recorded yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = bookings.map(b => `
+                <tr>
+                    <td><strong>#${b.booking_id}</strong></td>
+                    <td>
+                        <strong>${b.customer_name}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-secondary);">${b.customer_email}</div>
+                    </td>
+                    <td>
+                        <strong>${b.movie_title}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">${b.theater_name} (${b.city_name})</div>
+                    </td>
+                    <td>${b.show_date} at ${b.start_time}</td>
+                    <td>${b.num_seats} seats</td>
+                    <td><strong>₹${b.grand_total.toFixed(0)}</strong></td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="color:var(--color-green); font-size:0.75rem; font-weight:600;">✓ Dispatched</span>
+                            <button class="btn btn--outline btn--sm" style="font-size:0.7rem; padding:0.2rem 0.5rem;" onclick="AuraAuth.previewEmail(${b.booking_id})">
+                                View Receipt
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {}
+    }
+
+    // ------------------------------------------------------------------------
+    // REAL-TIME LOCATION & MOVIE TRAFFIC METRICS
+    // ------------------------------------------------------------------------
+    async function loadLocationTrafficMetrics() {
+        try {
+            const res = await fetch(`${API}/api/admin/location-traffic`);
+            const data = await res.json();
+            const tbody = document.getElementById('locationTrafficTableBody');
+            if (!tbody) return;
+            if (data.locations && data.locations.length > 0) {
+                tbody.innerHTML = data.locations.map(loc => {
+                    const badgeClass = loc.adaptive_multiplier > 1.25 ? 'high' : (loc.adaptive_multiplier > 1.0 ? 'medium' : (loc.adaptive_multiplier < 1.0 ? 'low' : 'normal'));
+                    return `
+                        <tr>
+                            <td><strong>${loc.theater_name}</strong><br><small style="color:var(--text-muted);">${loc.city_name} (${loc.screen_name})</small></td>
+                            <td><strong>${loc.movie_title}</strong><br><small style="color:var(--text-muted);">${loc.show_time}</small></td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    <span style="font-weight:700;">${loc.occupancy_percent}%</span>
+                                    <div style="flex:1; background:#222; height:6px; border-radius:3px; overflow:hidden; min-width:60px;">
+                                        <div style="width:${Math.min(100, loc.occupancy_percent)}%; background:${loc.occupancy_percent > 60 ? 'var(--color-amber)' : 'var(--color-green)'}; height:100%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="surge-badge surge-badge--${badgeClass}" style="font-size:0.72rem; padding:2px 6px;">
+                                    ${loc.traffic_level} (${loc.price_change_percent})
+                                </span>
+                            </td>
+                            <td><strong style="color:var(--text-primary); font-size:1rem;">${loc.adaptive_multiplier}x</strong></td>
+                            <td><strong style="color:var(--accent);">₹${loc.standard_price}</strong></td>
+                            <td>
+                                <a href="booking.html?show_id=${loc.show_id}" target="_blank" class="btn btn--outline btn--sm" style="font-size:0.7rem; padding:0.2rem 0.5rem;">
+                                    View Show
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No active shows found.</td></tr>';
+            }
+        } catch(e) {}
+    }
+
+    // ------------------------------------------------------------------------
+    // STRICT ROLE ACCESS CONTROL FOR ADMIN CONSOLE
+    // ------------------------------------------------------------------------
+    function checkAdminAccess() {
+        const user = window.AuraAuth ? AuraAuth.getCurrentUser() : null;
+        const gate = document.getElementById('adminAuthGate');
+        const content = document.getElementById('adminDashboardContent');
+        const banner = document.getElementById('adminNoticeBanner');
+
+        if (!user) {
+            // Guest mode
+            if (banner) banner.style.display = 'none';
+            if (content) content.style.display = 'none';
+            if (gate) {
+                gate.style.display = 'block';
+                gate.innerHTML = `
+                    <div class="admin-card" style="max-width:520px; margin: 3rem auto; text-align:center; padding: 2.25rem;">
+                        <div style="font-size:2.5rem; margin-bottom:0.75rem;">🔐</div>
+                        <h2 class="admin-card__title" style="margin-bottom:0.5rem; font-size:1.4rem;">Administrator Sign In Required</h2>
+                        <p class="admin-card__subtitle" style="margin-bottom:1.5rem; font-size:0.85rem;">
+                            This portal is strictly reserved for AuraCinemas Multiplex Administrators to manage cinema houses, active movies, shows, and dynamic pricing.
+                        </p>
+
+                        <div class="auth-quick-actions" style="margin-bottom:1.25rem;">
+                            <button type="button" class="btn btn--outline btn--sm btn--block" onclick="fillAdminGateDemo()" style="font-size:0.78rem; border-color:var(--accent); color:var(--accent);">
+                                ⚡ Fill Admin Credentials (admin@auracinemas.in)
+                            </button>
+                        </div>
+
+                        <form id="adminGateLoginForm" onsubmit="handleAdminGateLogin(event)" style="text-align:left;">
+                            <div class="form-group" style="margin-bottom:1rem;">
+                                <label class="form-label">Administrator Email</label>
+                                <input type="email" id="gateAdminEmail" class="form-control" required placeholder="admin@auracinemas.in">
+                            </div>
+                            <div class="form-group" style="margin-bottom:1rem;">
+                                <label class="form-label">Administrator Password</label>
+                                <input type="password" id="gateAdminPassword" class="form-control" required placeholder="••••••••">
+                            </div>
+                            <div id="gateAdminError" class="auth-error-msg" style="display:none; margin-bottom:1rem;"></div>
+                            <button type="submit" class="btn btn--primary btn--block btn--lg">Sign In to Admin Portal</button>
+                        </form>
+
+                        <div style="margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem; font-size:0.8rem;">
+                            <span>Looking to book movie tickets?</span>
+                            <a href="index.html" style="color:var(--accent); text-decoration:none; margin-left:0.3rem;">Return to Customer Portal &rarr;</a>
+                        </div>
+                    </div>
+                `;
+            }
+            return false;
+        }
+
+        if (user.role === 'customer') {
+            // Customer attempted to open admin console
+            if (banner) banner.style.display = 'none';
+            if (content) content.style.display = 'none';
+            if (gate) {
+                gate.style.display = 'block';
+                gate.innerHTML = `
+                    <div class="admin-card" style="max-width:540px; margin: 3rem auto; text-align:center; padding: 2.25rem; border-color:rgba(239,68,68,0.35);">
+                        <div style="font-size:2.5rem; margin-bottom:0.75rem;">🚫</div>
+                        <h2 class="admin-card__title" style="color:#ef4444; margin-bottom:0.5rem; font-size:1.35rem;">Access Denied: Customer Account Detected</h2>
+                        <p class="admin-card__subtitle" style="margin-bottom:1.5rem; font-size:0.85rem; color:var(--text-secondary);">
+                            You are signed in as Customer <strong>${user.full_name}</strong> (<em>${user.email}</em>).<br>
+                            Customer accounts cannot access administrator controls or set ticket pricing. Customer and Admin accounts are strictly separated.
+                        </p>
+                        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+                            <a href="index.html" class="btn btn--primary btn--sm">Browse Movies &amp; Book Tickets</a>
+                            <button class="btn btn--outline btn--sm" onclick="AuraAuth.logout()">Sign Out</button>
+                        </div>
+                    </div>
+                `;
+            }
+            return false;
+        }
+
+        // Authenticated Admin
+        if (gate) gate.style.display = 'none';
+        if (content) content.style.display = 'block';
+        if (banner) {
+            banner.style.display = 'flex';
+            banner.innerHTML = `
+                <div>
+                    <strong style="color:var(--accent);">👑 Administrator Portal:</strong>
+                    <span style="font-size:0.8rem; color:var(--text-secondary); margin-left:0.4rem;">
+                        Logged in as <strong>${user.full_name}</strong> (<em>${user.email}</em>). Manage cinema houses by region, movies, and adaptive pricing. (Admins cannot book tickets).
+                    </span>
+                </div>
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.logout()" style="border-color:#555; color:var(--text-muted); font-size:0.75rem;">Sign Out</button>
+            `;
+        }
+        return true;
+    }
+
+    function fillAdminGateDemo() {
+        document.getElementById('gateAdminEmail').value = 'admin@auracinemas.in';
+        document.getElementById('gateAdminPassword').value = 'admin123';
+    }
+
+    async function handleAdminGateLogin(e) {
+        e.preventDefault();
+        const errEl = document.getElementById('gateAdminError');
+        errEl.style.display = 'none';
+
+        const email = document.getElementById('gateAdminEmail').value.trim();
+        const password = document.getElementById('gateAdminPassword').value;
+
+        const res = await AuraAuth.login(email, password, 'admin');
+        if (res.success) {
+            showToast(`Welcome Administrator, ${res.user.full_name}!`, 'success');
+            checkAdminAccess();
+            await loadCities();
+            await loadCinemas();
+            await loadMovies();
+            await fetchAdminStats();
+            await loadLocationTrafficMetrics();
+        } else {
+            errEl.textContent = res.error;
+            errEl.style.display = 'block';
+        }
+    }
+
+    // Init on page load
+    (async () => {
+        // Set default date to today
+        document.getElementById('showDateInput').value = new Date().toISOString().split('T')[0];
+
+        window.addEventListener('aura-user-changed', () => checkAdminAccess());
+
+        const hasAdminAccess = checkAdminAccess();
+        if (hasAdminAccess) {
+            await loadCities();
+            await loadCinemas();
+            await loadMovies();
+            await fetchAdminStats();
+            await loadLocationTrafficMetrics();
+        }
+    })();
+    </script>
+</body>
+</html>

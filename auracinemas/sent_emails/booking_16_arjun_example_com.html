@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0c0c0c; color: #f0f0f0; margin: 0; padding: 20px; }
+  .ticket-card { max-width: 600px; margin: 0 auto; background: #181818; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+  .ticket-header { background: linear-gradient(135deg, #1f1a14 0%, #2b2216 100%); padding: 24px; text-align: center; border-bottom: 2px solid #D4A373; }
+  .brand-logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #ffffff; text-transform: uppercase; margin: 0; }
+  .brand-logo span { color: #D4A373; }
+  .badge-confirmed { display: inline-block; background: rgba(74, 222, 128, 0.15); border: 1px solid #4ade80; color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+  .ticket-body { padding: 24px; }
+  .movie-title { font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 6px 0; }
+  .movie-meta { color: #a0a0a0; font-size: 13px; margin-bottom: 20px; }
+  .grid-info { display: table; width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  .grid-row { display: table-row; }
+  .grid-cell { display: table-cell; padding: 10px; background: #202020; border: 1px solid #2c2c2c; }
+  .grid-cell strong { display: block; font-size: 11px; text-transform: uppercase; color: #D4A373; letter-spacing: 1px; margin-bottom: 4px; }
+  .grid-cell span { font-size: 14px; font-weight: 600; color: #ffffff; }
+  .seats-highlight { background: #262118; border: 1px dashed #D4A373; padding: 14px; border-radius: 8px; text-align: center; margin-bottom: 24px; }
+  .seats-highlight strong { color: #D4A373; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .seats-highlight p { font-size: 20px; font-weight: 800; color: #ffffff; margin: 5px 0 0 0; letter-spacing: 2px; }
+  .price-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+  .price-table td { padding: 8px 0; border-bottom: 1px solid #282828; color: #a0a0a0; }
+  .price-table td.val { text-align: right; color: #ffffff; font-weight: 600; }
+  .price-table tr.total-row td { font-size: 16px; font-weight: 800; color: #D4A373; border-top: 2px solid #D4A373; border-bottom: none; padding-top: 12px; }
+  .qr-box { text-align: center; padding: 20px; background: #121212; border-radius: 8px; border: 1px solid #252525; margin-bottom: 20px; }
+  .qr-code-svg { display: inline-block; margin-bottom: 10px; }
+  .barcode-text { font-family: monospace; font-size: 13px; color: #D4A373; letter-spacing: 3px; margin: 0; }
+  .ticket-footer { background: #121212; padding: 16px 24px; font-size: 11px; color: #666; text-align: center; border-top: 1px solid #222; }
+</style>
+</head>
+<body>
+  <div class="ticket-card">
+    <div class="ticket-header">
+      <h1 class="brand-logo">Aura<span>Cinemas</span></h1>
+      <div class="badge-confirmed">&#10003; Booking Confirmed</div>
+    </div>
+    <div class="ticket-body">
+      <h2 class="movie-title">Street Fighter 2</h2>
+      <div class="movie-meta">English | U/A | 190 mins | Action</div>
+      
+      <div class="grid-info">
+        <div class="grid-row">
+          <div class="grid-cell">
+            <strong>Cinema House</strong>
+            <span>AuraCinema Spine Road</span>
+          </div>
+          <div class="grid-cell">
+            <strong>Screen</strong>
+            <span>Audi 2 (IMAX)</span>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell">
+            <strong>Date</strong>
+            <span>2026-10-14</span>
+          </div>
+          <div class="grid-cell">
+            <strong>Show Time</strong>
+            <span>18:30</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seats-highlight">
+        <strong>Confirmed Seats (2 Tickets)</strong>
+        <p>C-12, E-11</p>
+      </div>
+
+      <table class="price-table">
+        <tr><td>Base Ticket Total</td><td class="val">&#8377;500.00</td></tr>
+        <tr><td>Adaptive Traffic Adjustment</td><td class="val">&#8377;-45.00</td></tr>
+        <tr><td>GST (18%)</td><td class="val">&#8377;81.90</td></tr>
+        <tr><td>Convenience Fee</td><td class="val">&#8377;60.00</td></tr>
+        <tr class="total-row"><td>Grand Total Paid</td><td class="val">&#8377;596.90</td></tr>
+      </table>
+
+      <div class="qr-box">
+        <!-- SVG QR code placeholder -->
+        <svg class="qr-code-svg" width="120" height="120" viewBox="0 0 100 100">
+          <rect width="100" height="100" fill="#ffffff" rx="6"/>
+          <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" fill="#121212"/>
+          <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" fill="#121212"/>
+          <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" fill="#121212"/>
+          <circle cx="50" cy="50" r="5" fill="#D4A373"/>
+          <rect x="45" y="15" width="8" height="20" fill="#121212"/>
+          <rect x="70" y="55" width="20" height="8" fill="#121212"/>
+          <rect x="50" y="70" width="15" height="15" fill="#121212"/>
+          <rect x="75" y="75" width="12" height="12" fill="#121212"/>
+        </svg>
+        <p class="barcode-text">REF: AC-16-522262</p>
+        <div style="font-size: 11px; color: #888; margin-top: 6px;">Scan this code at cinema gate turnstile for direct entry</div>
+      </div>
+
+      <div style="font-size: 12px; color: #999; line-height: 1.5; padding: 10px; background: #161616; border-radius: 6px;">
+        <strong>Customer:</strong> Arjun Sharma (arjun@example.com)<br>
+        <strong>Transaction Ref:</strong> TXN1795064522262 | <strong>Paid At:</strong> 19 Nov 2026, 10:32 AM
+      </div>
+    </div>
+    <div class="ticket-footer">
+      Please carry this digital ticket along with a valid Government ID.<br>
+      Automated email generated and dispatched by AuraCinemas Ticketing System.
+    </div>
+  </div>
+</body>
+</html>

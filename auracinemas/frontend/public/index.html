@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraCinemas - Book Movie Tickets Online</title>
+    <meta name="description" content="Book movie tickets online at AuraCinemas. Browse now showing Bollywood, Hollywood and regional films with traffic-based adaptive pricing across India.">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .search-bar {
+            max-width: 460px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+        .search-bar__input {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.6rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        .search-bar__input:focus {
+            border-color: var(--accent);
+        }
+        .search-bar__input::placeholder { color: var(--text-muted); }
+        .search-bar__icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .filter-chip {
+            padding: 0.35rem 0.9rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-chip:hover, .filter-chip.active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .now-showing-label {
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: var(--radius);
+            background: rgba(74, 222, 128, 0.06);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+            color: var(--color-green);
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Movie card enhancements */
+        .movie-card__poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius);
+        }
+        .movie-card__demand-tag {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(212, 163, 115, 0.4);
+            color: var(--accent);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .role-banner-home {
+            background: rgba(212, 163, 115, 0.06);
+            border: 1px solid rgba(212, 163, 115, 0.2);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="navbar__logo">Aura<span>Cinemas</span></a>
+        <div class="navbar__nav">
+            <a href="index.html" class="navbar__link">Movies</a>
+            <a href="admin.html" class="navbar__link">Admin Console</a>
+            <a href="#movieGrid" class="btn btn--primary" style="padding: 0.45rem 1rem; font-size: 0.8rem;">Browse Movies</a>
+            <div id="navbarUserWidget"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Role Banner / Quick Switcher -->
+        <div class="role-banner-home" id="roleBannerHome">
+            <div id="roleBannerText">
+                Loading session...
+            </div>
+            <div style="display:flex; gap:0.5rem;" id="roleBannerActions">
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.openLoginModal('customer')">Switch / Sign In</button>
+            </div>
+        </div>
+
+        <section class="hero" id="hero">
+            <h1 class="hero__title">Book tickets for the<br>movies showing near you</h1>
+            <p class="hero__sub">Browse Bollywood, Hollywood, and regional films across Indian cinemas. Powered by real-time adaptive pricing and automated email confirmations.</p>
+        </section>
+
+        <div class="search-bar" id="search-bar">
+            <svg class="search-bar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-bar__input" id="searchInput" placeholder="Search movies by title, genre, director, or cast..." autocomplete="off">
+            <button id="searchClearBtn" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer; display:none; line-height:1;" title="Clear search">&times;</button>
+        </div>
+        <div id="searchFeedback" style="text-align:center; font-size:0.8rem; color:var(--text-secondary); margin:-0.75rem auto 1.25rem; display:none;"></div>
+
+        <div class="city-pills" id="cityPills">
+            <button class="city-pill active" data-city="all">All Cities</button>
+        </div>
+
+        <div class="filters" id="langFilters">
+            <button class="filter-chip active" data-lang="all">All</button>
+            <button class="filter-chip" data-lang="Hindi">Hindi</button>
+            <button class="filter-chip" data-lang="English">English</button>
+            <button class="filter-chip" data-lang="Telugu">Telugu</button>
+            <button class="filter-chip" data-lang="Tamil">Tamil</button>
+        </div>
+
+        <div style="text-align: center;">
+            <div class="now-showing-label">Now Showing In Cinemas</div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-header__title">Active Multiplex Movies</h2>
+            <div class="section-header__line"></div>
+        </div>
+
+        <div class="movie-grid" id="movieGrid"></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <footer class="footer">
+        <p>&copy; 2026 AuraCinemas. Adaptive Pricing Engine &amp; Automated Email Ticket System.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script>
+    const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '8080'))
+        ? 'http://localhost:8080'
+        : '';
+    let allMovies = [];
+    let allCities = [];
+    let currentLang = 'all';
+    let currentCity = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, type = 'info') {
+        const c = document.getElementById('toastContainer');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = `toast toast--${type}`;
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(() => {
+            t.classList.add('toast--exit');
+            setTimeout(() => t.remove(), 200);
+        }, 3000);
+    }
+
+    function updateRoleBanner() {
+        const user = window.AuraAuth ? AuraAuth.getCurrentUser() : null;
+        const banner = document.getElementById('roleBannerHome');
+        const text = document.getElementById('roleBannerText');
+        const actions = document.getElementById('roleBannerActions');
+
+        if (!user) {
+            text.innerHTML = `👋 <strong>Welcome to AuraCinemas!</strong> Browse movies and reserve seats with dynamic location-based pricing.`;
+            actions.innerHTML = `
+                <button class="btn btn--primary btn--sm" onclick="AuraAuth.openLoginModal()">Sign In</button>
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.openRegisterModal()">Register</button>
+            `;
+            return;
+        }
+
+        if (user.role === 'admin') {
+            text.innerHTML = `👑 <strong>Logged in as Administrator:</strong> <em>${user.full_name}</em> (${user.email}). Manage cinema houses, movies, and schedule shows. <em>(Admins cannot book tickets)</em>`;
+            actions.innerHTML = `
+                <a href="admin.html" class="btn btn--primary btn--sm">Admin Console</a>
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.logout()" style="color:var(--text-muted); border-color:#444;">Sign Out</button>
+            `;
+        } else {
+            text.innerHTML = `👤 <strong>Signed in as Customer:</strong> <em>${user.full_name}</em> (${user.email}). All booking receipts are automatically emailed to your registered address!`;
+            actions.innerHTML = `
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.openBookingsModal()">My Bookings &amp; Emails</button>
+                <button class="btn btn--outline btn--sm" onclick="AuraAuth.logout()" style="color:var(--text-muted); border-color:#444;">Sign Out</button>
+            `;
+        }
+    }
+
+    async function fetchMovies() {
+        try {
+            const res = await fetch(`${API_BASE}/api/movies`);
+            if (res.ok) {
+                const data = await res.json();
+                return data.movies || [];
+            }
+        } catch (e) {}
+        return [];
+    }
+
+    async function fetchCities() {
+        try {
+            const res = await fetch(`${API_BASE}/api/cities`);
+            if (res.ok) {
+                const data = await res.json();
+                allCities = data.cities || [];
+                renderCityPills();
+            }
+        } catch (e) {}
+    }
+
+    function renderCityPills() {
+        const container = document.getElementById('cityPills');
+        container.innerHTML = `<button class="city-pill ${currentCity === 'all' ? 'active' : ''}" data-city="all">All Cities</button>` +
+            allCities.map(c => `<button class="city-pill ${currentCity == c.city_id ? 'active' : ''}" data-city="${c.city_id}">${c.city_name}</button>`).join('');
+
+        container.querySelectorAll('.city-pill').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                container.querySelectorAll('.city-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCity = btn.dataset.city;
+                renderMovies();
+            });
+        });
+    }
+
+    function createMovieCard(movie) {
+        const genres = (movie.genre || 'Action').split(',').map(g => g.trim());
+        const hours = Math.floor(movie.duration_mins / 60);
+        const mins = movie.duration_mins % 60;
+
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.style.cursor = 'pointer';
+        // Navigate directly to the selected movie's booking page
+        card.onclick = () => window.location.href = `booking.html?movie_id=${movie.movie_id}`;
+
+        const posterContent = movie.poster_url
+            ? `<img src="${movie.poster_url}" alt="${movie.title}">`
+            : `<span style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--accent);">${movie.title.charAt(0)}</span>`;
+
+        card.innerHTML = `
+            <div class="movie-card__poster" style="position:relative;">
+                ${posterContent}
+                <div class="movie-card__rating">⭐ ${movie.rating ? movie.rating.toFixed(1) : '7.5'}</div>
+                <div class="movie-card__cert">${movie.certification || 'U/A'}</div>
+                <div class="movie-card__demand-tag">Adaptive Pricing</div>
+            </div>
+            <div class="movie-card__body">
+                <h3 class="movie-card__title">${movie.title}</h3>
+                <div class="movie-card__meta">
+                    ${genres.slice(0, 2).map(g => `<span class="movie-card__tag">${g}</span>`).join('')}
+                    <span class="movie-card__tag">${movie.language}</span>
+                </div>
+                <div class="movie-card__info">${hours}h ${mins}m / ${movie.director || 'Multiplex Screening'}</div>
+                <div style="margin-top:0.75rem;">
+                    <button class="btn btn--primary btn--sm btn--block" onclick="event.stopPropagation(); window.location.href='booking.html?movie_id=${movie.movie_id}';" style="width:100%; font-size:0.78rem; padding:0.4rem 0.6rem; cursor:pointer;">
+                        🎟️ Book Tickets
+                    </button>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    function renderMovies() {
+        const grid = document.getElementById('movieGrid');
+        const feedback = document.getElementById('searchFeedback');
+        const clearBtn = document.getElementById('searchClearBtn');
+        grid.innerHTML = '';
+
+        let filtered = allMovies;
+        if (currentLang !== 'all') {
+            filtered = filtered.filter(m => m.language === currentLang);
+        }
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(m =>
+                m.title.toLowerCase().includes(q) ||
+                (m.director && m.director.toLowerCase().includes(q)) ||
+                (m.cast_list && m.cast_list.toLowerCase().includes(q)) ||
+                (m.genre && m.genre.toLowerCase().includes(q))
+            );
+            if (feedback) {
+                feedback.style.display = 'block';
+                feedback.innerHTML = `Found <strong>${filtered.length}</strong> movie${filtered.length === 1 ? '' : 's'} matching "<em>${searchQuery}</em>" &bull; <a href="javascript:void(0)" onclick="clearSearch()" style="color:var(--accent); text-decoration:underline;">Clear Search</a>`;
+            }
+            if (clearBtn) clearBtn.style.display = 'block';
+        } else {
+            if (feedback) feedback.style.display = 'none';
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div style="text-align:center; color: var(--text-muted); grid-column: 1/-1; padding: 3.5rem 1rem;">
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🎬</div>
+                    <strong style="color: var(--text-primary); font-size: 1.05rem;">No active movies found matching your search.</strong>
+                    <p style="margin-top: 0.4rem; font-size: 0.85rem;">Try searching by different keywords or clear the filter.</p>
+                    <button class="btn btn--outline btn--sm" onclick="clearSearch()" style="margin-top: 1rem;">Reset Search Filters</button>
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach(m => grid.appendChild(createMovieCard(m)));
+    }
+
+    function clearSearch() {
+        const input = document.getElementById('searchInput');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        searchQuery = '';
+        renderMovies();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderMovies();
+    });
+
+    const clearBtnEl = document.getElementById('searchClearBtn');
+    if (clearBtnEl) {
+        clearBtnEl.addEventListener('click', clearSearch);
+    }
+
+    document.getElementById('langFilters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-chip')) {
+            document.querySelectorAll('#langFilters .filter-chip').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            currentLang = e.target.dataset.lang;
+            renderMovies();
+        }
+    });
+
+    window.addEventListener('aura-user-changed', () => updateRoleBanner());
+
+    (async () => {
+        updateRoleBanner();
+        await fetchCities();
+        allMovies = await fetchMovies();
+        renderMovies();
+    })();
+    </script>
+</body>
+</html>

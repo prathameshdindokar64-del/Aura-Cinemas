@@ -1,0 +1,889 @@
+/* ============================================================================
+   AuraCinemas Design System
+   Palette: Soft Black #121212, Mid Gray #888, Warm Ochre #D4A373
+   Typography: DM Serif Display (headings) + DM Sans (body)
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
+
+:root {
+    --bg-primary:    #121212;
+    --bg-secondary:  #1a1a1a;
+    --bg-card:       #1e1e1e;
+    --bg-elevated:   #252525;
+
+    --accent:        #D4A373;
+    --accent-hover:  #c4925f;
+
+    --color-green:   #4ade80;
+    --color-amber:   #f59e0b;
+    --color-red:     #ef4444;
+
+    --text-primary:  #f0f0f0;
+    --text-secondary:#999999;
+    --text-muted:    #666666;
+
+    --border:        #2a2a2a;
+
+    --radius:        4px;
+    --radius-md:     8px;
+
+    --transition:    0.15s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Navbar --- */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 60px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.navbar__logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.navbar__logo span {
+    color: var(--accent);
+}
+
+.navbar__nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.navbar__link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.navbar__link:hover {
+    color: var(--text-primary);
+}
+
+/* --- Container --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem;
+}
+
+/* --- Hero --- */
+.hero {
+    text-align: center;
+    padding: 5rem 1rem 3rem;
+}
+
+.hero__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+    color: var(--text-primary);
+}
+
+.hero__sub {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    font-weight: 400;
+}
+
+/* --- Section Headers --- */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-header__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.section-header__line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* --- City Selector --- */
+.city-pills {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.city-pill {
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.city-pill:hover,
+.city-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* --- Movie Grid --- */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.movie-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color var(--transition);
+}
+
+.movie-card:hover {
+    border-color: #444;
+}
+
+.movie-card__poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.movie-card__poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.movie-card__rating {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-amber);
+}
+
+.movie-card__cert {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.movie-card__body {
+    padding: 0.9rem 1rem 1rem;
+}
+
+.movie-card__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-card__meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.4rem;
+}
+
+.movie-card__tag {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.movie-card__info {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition);
+    text-decoration: none;
+}
+
+.btn--primary {
+    background: var(--accent);
+    color: #121212;
+}
+
+.btn--primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn--outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.btn--outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn--lg {
+    padding: 0.8rem 2rem;
+    font-size: 0.9rem;
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* === BOOKING PAGE === */
+
+.screen-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.screen {
+    width: 60%;
+    max-width: 420px;
+    height: 4px;
+    margin: 0 auto 0.6rem;
+    background: var(--border);
+    border-radius: 50%;
+}
+
+.screen-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+/* --- Seat Grid --- */
+.seat-grid-wrapper {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 1rem 0;
+}
+
+.seat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.seat-row__label {
+    width: 22px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    border-radius: 3px 3px 5px 5px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 600;
+}
+
+.seat:hover:not(.seat--booked):not(.seat--blocked) {
+    transform: scale(1.1);
+    z-index: 5;
+}
+
+.seat--standard {
+    background: transparent;
+    border-color: #444;
+    color: var(--text-muted);
+}
+
+.seat--premium {
+    background: rgba(212, 163, 115, 0.06);
+    border-color: rgba(212, 163, 115, 0.35);
+    color: var(--accent);
+}
+
+.seat--recliner {
+    background: rgba(245, 158, 11, 0.06);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: var(--color-amber);
+    border-radius: 5px;
+}
+
+.seat--vip {
+    background: rgba(234, 179, 8, 0.06);
+    border-color: rgba(234, 179, 8, 0.3);
+    color: var(--color-amber);
+}
+
+.seat--balcony {
+    background: transparent;
+    border-color: #444;
+    color: var(--text-muted);
+}
+
+.seat--selected {
+    background: var(--color-green) !important;
+    border-color: var(--color-green) !important;
+    color: #000 !important;
+}
+
+.seat--booked {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: var(--color-red);
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.seat--blocked {
+    background: transparent;
+    border-color: #333;
+    cursor: not-allowed;
+    opacity: 0.25;
+}
+
+/* --- Seat Legend --- */
+.seat-legend {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+    padding: 0.8rem 1rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.seat-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.seat-legend__swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+/* --- Pricing Panel --- */
+.booking-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .booking-layout { grid-template-columns: 1fr; }
+}
+
+.pricing-panel {
+    position: sticky;
+    top: 4.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+
+.pricing-panel__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 0.8rem;
+}
+
+.pricing-panel__movie {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.pricing-panel__seats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.8rem;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.pricing-seat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-elevated);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+}
+
+.pricing-seat__label { font-weight: 600; }
+.pricing-seat__price { color: var(--color-green); font-weight: 700; }
+
+.pricing-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.6rem 0;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+    color: var(--text-secondary);
+}
+
+.pricing-row--total {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding-top: 0.5rem;
+}
+
+.pricing-row__val--surge {
+    color: var(--color-amber);
+}
+
+/* --- Surge Badge --- */
+.surge-badge {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius);
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.surge-badge--low {
+    background: rgba(74, 222, 128, 0.08);
+    color: var(--color-green);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.surge-badge--medium {
+    background: rgba(245, 158, 11, 0.08);
+    color: var(--color-amber);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.surge-badge--high {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--color-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* --- Skeleton --- */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-secondary) 25%, #252525 50%, var(--bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius);
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* --- Toast --- */
+.toast-container {
+    position: fixed;
+    top: 4.5rem;
+    right: 1.5rem;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    min-width: 260px;
+    animation: toastIn 0.2s ease-out;
+}
+
+.toast--success { border-left: 3px solid var(--color-green); }
+.toast--error   { border-left: 3px solid var(--color-red); }
+.toast--info    { border-left: 3px solid var(--accent); }
+
+@keyframes toastIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+/* --- Footer --- */
+.footer {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+    .navbar { padding: 0 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    .movie-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem; }
+    .seat { width: 24px; height: 24px; font-size: 0.5rem; }
+}
+
+/* ============================================================================
+   AuraCinemas - Auth, Role Separation & Automated Email Modals
+   ============================================================================ */
+.navbar-user-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.user-pill--admin {
+    border-color: rgba(212, 163, 115, 0.4);
+    background: rgba(212, 163, 115, 0.08);
+}
+.user-badge-role {
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 700;
+}
+.user-name {
+    color: var(--text-primary);
+}
+
+/* Modals & Overlays (Universal) */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    padding: 1rem;
+}
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.75rem;
+    max-width: 440px;
+    width: 95%;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    animation: modalPopIn 0.2s ease-out;
+}
+@keyframes modalPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+.modal__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+.modal__check {
+    text-align: center;
+    margin-bottom: 0.6rem;
+}
+.modal__check svg {
+    width: 44px;
+    height: 44px;
+    stroke: var(--color-green);
+}
+.modal__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+.modal-close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Auth Modal */
+.auth-modal-box {
+    max-width: 420px;
+}
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+}
+.auth-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.6rem 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.auth-tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+.auth-tab-pane {
+    display: none;
+}
+.auth-tab-pane.active {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+.auth-error-msg {
+    color: var(--color-red);
+    font-size: 0.75rem;
+    margin-top: 0.6rem;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Bookings Modal */
+.bookings-modal-box {
+    max-width: 580px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+.bookings-scroll-area {
+    overflow-y: auto;
+    max-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-right: 0.25rem;
+}
+.booking-history-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.1rem;
+    transition: border-color var(--transition);
+}
+.booking-history-card:hover {
+    border-color: rgba(212, 163, 115, 0.35);
+}
+.bh-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+.bh-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.bh-badge--confirmed {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--color-green);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+.bh-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.75rem;
+}
+.bh-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Email Receipt Modal */
+.email-modal-box {
+    max-width: 650px;
+    width: 95%;
+}
+
+/* Adaptive Pricing Badges */
+.surge-badge--normal {
+    background: rgba(212, 163, 115, 0.08);
+    border-color: rgba(212, 163, 115, 0.25);
+    color: var(--accent);
+}
+.surge-badge--low {
+    background: rgba(74, 222, 128, 0.08);
+    border-color: rgba(74, 222, 128, 0.25);
+    color: var(--color-green);
+}
+.surge-badge--medium {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: var(--color-amber);
+}
+.surge-badge--high {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: var(--color-red);
+}
+
+.pricing-panel__seat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    font-size: 0.82rem;
+    border-bottom: 1px dashed #2a2a2a;
+}

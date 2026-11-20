@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats &amp; Book - AuraCinemas</title>
+    <meta name="description" content="Select your seats and book tickets on AuraCinemas with real-time automated location adaptive pricing and automated email confirmation.">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .show-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 1.25rem;
+        }
+        .show-info__poster {
+            width: 56px;
+            height: 72px;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            border: 1px solid rgba(212, 163, 115, 0.3);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .show-info__poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .show-info__details { flex: 1; }
+        .show-info__title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+        }
+        .show-info__meta {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 0.3rem;
+        }
+
+        .role-alert-banner {
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.82rem;
+        }
+        .role-alert-banner--guest {
+            background: rgba(212, 163, 115, 0.08);
+            border: 1px solid rgba(212, 163, 115, 0.25);
+            color: var(--accent);
+        }
+        .role-alert-banner--admin {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .role-alert-banner--customer {
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.25);
+            color: #86efac;
+        }
+
+        /* Read-Only Automated Adaptive Pricing Bar */
+        .adaptive-pricing-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .adaptive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .lock-timer {
+            text-align: center;
+            padding: 0.4rem 0.9rem;
+            border-radius: var(--radius);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-size: 0.8rem;
+            color: var(--color-red);
+            font-weight: 600;
+        }
+        .lock-timer.hidden { display: none; }
+
+        .category-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 0.8rem 0 0.4rem;
+            padding: 0 2rem;
+            width: 100%;
+        }
+        .category-divider__label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .category-divider__line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            max-width: 440px;
+            width: 90%;
+            position: relative;
+        }
+        .modal__title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+        .modal__check {
+            text-align: center;
+            margin-bottom: 0.6rem;
+        }
+        .modal__check svg {
+            width: 44px;
+            height: 44px;
+            color: var(--color-green);
+        }
+        .modal__actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar__logo">Aura<span>Cinemas</span></a>
+        <div class="navbar__nav">
+            <a href="index.html" class="navbar__link">&larr; Back to Movies</a>
+            <div class="lock-timer hidden" id="lockTimer">Lock expires: <span id="timerDisplay">08:00</span></div>
+            <div id="navbarUserWidget"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Role Alert / Enforcement Banner -->
+        <div id="roleAlertBanner"></div>
+
+        <!-- Movie & Show Details -->
+        <div class="show-info" id="showInfo">
+            <div class="show-info__poster" id="posterInitials" style="overflow:hidden; display:flex; align-items:center; justify-content:center;">--</div>
+            <div class="show-info__details" style="flex:1;">
+                <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.25rem;">
+                    <h1 class="show-info__title" id="movieTitle" style="margin:0;">Loading Movie...</h1>
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <label for="movieQuickSelect" style="font-size:0.72rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Switch Movie:</label>
+                        <select id="movieQuickSelect" class="form-control" style="font-size:0.8rem; padding:0.25rem 0.6rem; border-color:var(--accent); background:var(--bg-secondary); color:var(--text-primary); cursor:pointer;" onchange="window.AuraBooking && window.AuraBooking.switchMovie(this.value)">
+                            <option value="">Loading movies...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="show-info__meta" id="showMetaRow">
+                    <span id="showTheater">--</span>
+                    <span id="showDate">--</span>
+                    <span id="showTime">--</span>
+                    <span id="showScreen">--</span>
+                </div>
+                <!-- Dynamic Showtime Switcher for this selected movie -->
+                <div id="showtimeSelectorWrapper" style="display:none; margin-top:0.75rem; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Available Showtimes:</span>
+                    <div id="showtimePills" style="display:flex; gap:0.4rem; flex-wrap:wrap;"></div>
+                </div>
+            </div>
+            <div>
+                <a href="index.html" class="btn btn--outline btn--sm" style="font-size:0.75rem;">&larr; Movie Catalog</a>
+            </div>
+        </div>
+
+        <!-- Automated Location-Based Adaptive Pricing Info (Read-Only for Customers) -->
+        <div class="adaptive-pricing-bar" id="adaptivePricingBar">
+            <div class="adaptive-header">
+                <div>
+                    <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); font-weight:700;">
+                        📍 Automated Location Demand &amp; Adaptive Pricing
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem; flex-wrap:wrap;">
+                        <span style="font-weight:700; font-size:1.05rem;" id="pricingStatusText">Calculating Dynamic Pricing...</span>
+                        <span class="surge-badge surge-badge--normal" id="surgeBadge">1.00x Base</span>
+                    </div>
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); text-align:right;">
+                    <div>Automated according to local footfall &amp; auditorium occupancy</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Bounded: Max +80% surge / Min -20% discount floor</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-layout">
+
+            <!-- Seat Grid Layout -->
+            <div>
+                <div class="screen-container">
+                    <div class="screen"></div>
+                    <div class="screen-label">Auditorium Screen This Way</div>
+                </div>
+
+                <div class="seat-grid-wrapper">
+                    <div class="seat-grid" id="seatGrid"></div>
+                </div>
+
+                <div class="seat-legend" id="seatLegend">
+                    <div class="seat-legend__item">
+                        <div class="seat-legend__swatch" style="background: transparent; border-color: #444;"></div>
+                        Standard
+                    </div>
+                    <div class="seat-legend__item">
+                        <div class="seat-legend__swatch" style="background: rgba(212,163,115,0.06); border-color: rgba(212,163,115,0.35);"></div>
+                        Premium
+                    </div>
+                    <div class="seat-legend__item">
+                        <div class="seat-legend__swatch" style="background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.3);"></div>
+                        Recliner
+                    </div>
+                    <div class="seat-legend__item">
+                        <div class="seat-legend__swatch" style="background: var(--color-green); border-color: var(--color-green);"></div>
+                        Selected
+                    </div>
+                    <div class="seat-legend__item">
+                        <div class="seat-legend__swatch" style="background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2);"></div>
+                        Booked
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Summary & Dynamic Checkout Panel -->
+            <div class="pricing-panel" id="pricingPanel">
+                <div class="pricing-panel__title">Booking Summary</div>
+                <div class="pricing-panel__movie" id="panelMovieName">Select seats to begin</div>
+
+                <div class="pricing-panel__seats" id="panelSeats">
+                    <p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 1.25rem 0;">
+                        Click on available seats to select them
+                    </p>
+                </div>
+
+                <div id="pricingBreakdown" style="display: none;">
+                    <div class="pricing-divider"></div>
+                    <div class="pricing-row">
+                        <span>Base Total</span>
+                        <span id="priceBase">&#8377;0</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>Location Traffic Adjustment</span>
+                        <span class="pricing-row__val--surge" id="priceSurge">&#8377;0</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>GST (18%)</span>
+                        <span id="priceTax">&#8377;0</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>Convenience Fee</span>
+                        <span id="priceConvenience">&#8377;0</span>
+                    </div>
+                    <div class="pricing-divider"></div>
+                    <div class="pricing-row pricing-row--total">
+                        <span>Grand Total Payable</span>
+                        <span id="priceTotal">&#8377;0</span>
+                    </div>
+
+                    <div style="background:var(--bg-secondary); border-radius:6px; padding:0.75rem; margin-top:1rem; border:1px solid var(--border); font-size:0.75rem; color:var(--text-secondary);">
+                        <strong style="color:var(--text-primary);">✉️ Automated Ticket Delivery:</strong><br>
+                        Digital ticket receipt will be sent automatically to: <strong id="registeredEmailNotice" style="color:var(--accent);">--</strong>
+                    </div>
+                </div>
+
+                <button class="btn btn--primary btn--block btn--lg" id="btnConfirm"
+                        disabled style="margin-top: 1.25rem;">
+                    Select Seats to Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h2 class="modal__title">Booking Confirmed!</h2>
+            <div id="modalContent"></div>
+            <div class="modal__actions">
+                <a href="index.html" class="btn btn--outline" style="flex:1;">Browse More</a>
+                <button class="btn btn--primary" style="flex:1;" onclick="document.getElementById('confirmModal').classList.remove('active')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <footer class="footer">
+        <p>&copy; 2026 AuraCinemas. Automated Email Confirmations &amp; Location-Adaptive Dynamic Pricing.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/seat-selection.js"></script>
+</body>
+</html>
